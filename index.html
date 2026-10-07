@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liquid Habit — Glassmorphism Tracker</title>
+<title>Habit Tracker</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -99,13 +99,13 @@ tailwind.config = {
       <i class="ph-fill ph-droplet text-white text-lg"></i>
     </div>
     <div>
-      <h1 class="font-display font-bold text-xl tracking-tight text-ink leading-none">Liquid Habit</h1>
-      <span class="text-[11px] font-body text-ink/50 tracking-wide">Glassmorphism Tracker · Saved locally</span>
+      <h1 class="font-display font-bold text-xl tracking-tight text-ink leading-none">Habit Tracker</h1>
+      <span class="text-[11px] font-body text-ink/50 tracking-wide">Saved locally</span>
     </div>
   </div>
   <div class="flex items-center gap-2">
-    <button onclick="setMonth('Aug 2026')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/60 hover:bg-white/90 border border-white/40 text-ink transition shadow-sm">Aug 2026</button>
-    <button onclick="setMonth('Sep 2026')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/40 hover:bg-white/70 border border-white/30 text-ink/70 transition">Sep 2026</button>
+    <button onclick="setMonth('Aug 2026', 2026, 8)" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/60 hover:bg-white/90 border border-white/40 text-ink transition shadow-sm">Aug 2026</button>
+    <button onclick="setMonth('Sep 2026', 2026, 9)" class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/40 hover:bg-white/70 border border-white/30 text-ink/70 transition">Sep 2026</button>
     <button onclick="downloadBackup()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-ink/5 hover:bg-ink/10 border border-ink/10 text-ink transition shadow-sm" title="Download backup JSON">💾 Backup</button>
     <button onclick="restoreFromFile()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-ink/5 hover:bg-ink/10 border border-ink/10 text-ink transition shadow-sm" title="Restore from file">📂 Restore</button>
   </div>
@@ -214,7 +214,7 @@ tailwind.config = {
   </div>
 </section>
 
-<footer class="text-center font-body text-xs text-ink/30 py-6">Liquid Habit — Glassmorphism Tracker · Data saved locally in your browser</footer>
+<footer class="text-center font-body text-xs text-ink/30 py-6">Habit Tracker · Data saved locally</footer>
 </main>
 
 <script>
@@ -310,7 +310,7 @@ function renderMatrix() {
     row.className = 'border-b border-white/20 hover:bg-white/20 transition';
     const tdName = document.createElement('td');
     tdName.className = 'py-3 px-3 sticky left-0 z-10 bg-white/70 backdrop-blur-sm font-display font-medium text-ink whitespace-nowrap';
-    tdName.innerHTML = `<div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-${h.color}/20 to-${h.color}/40 flex items-center justify-center shadow-inner"><i class="ph-fill ${h.icon} text-ink/70 text-sm"></i></div><div><div class="text-sm font-semibold leading-tight">${h.name}</div><div class="text-[10px] text-ink/40">${h.completed}/${h.freq}</div></div></div>`;
+    tdName.innerHTML = `<div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-${h.color}/20 to-${h.color}/40 flex items-center justify-center shadow-inner"><i class="ph-fill ${h.icon} text-ink/70 text-sm"></i></div><div><div class="text-sm font-semibold leading-tight">${h.name}</div><div class="text-[10px] text-ink/40">${h.completed}/${h.freq}</div></div></div><button onclick="deleteHabit('${h.id}')" class="ml-2 text-[10px] text-red-400 hover:text-red-600 font-medium px-1 rounded hover:bg-red-50 transition" title="Delete habit">✕</button>`;
     row.appendChild(tdName);
     for (const d of cols) {
       const td = document.createElement('td');
@@ -338,6 +338,13 @@ function toggleCheck(hid, day, el) {
   el.className = `check-cell w-7 h-7 mx-auto rounded-full flex items-center justify-center text-xs ${active ? 'active' : 'bg-white/40 text-ink/20 hover:bg-white/60'}`;
   const h = habits.find(x => x.id === hid);
   if (h) { h.completed = c.size; }
+  renderMatrix(); updateCharts(); updateRing(); saveAll();
+}
+
+function deleteHabit(hid) {
+  if (!confirm('Delete this habit and all its data?')) return;
+  const idx = habits.findIndex(x => x.id === hid);
+  if (idx >= 0) { habits.splice(idx, 1); delete checkData[hid]; }
   renderMatrix(); updateCharts(); updateRing(); saveAll();
 }
 
@@ -414,9 +421,11 @@ function updateRing() {
   document.getElementById('ringArc').style.strokeDashoffset = offset;
 }
 
-function setMonth(label) {}
-function prevMonth() {}
-function nextMonth() {}
+function setMonth(label, year, month) {
+  document.getElementById('monthTitle').innerHTML = label.split(' ')[0] + ' <span class="text-lavender">' + label.split(' ')[1] + '</span>';
+}
+function prevMonth() { alert('Previous month: navigate to earlier month'); }
+function nextMonth() { alert('Next month: navigate to next month'); }
 
 // ================= INIT =================
 document.addEventListener('DOMContentLoaded', () => {
